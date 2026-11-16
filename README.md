@@ -11,7 +11,7 @@ Een speelbaar browserspel in één HTML-bestand. Sinterklaas rijdt met Pietje op
 1. Het stadje: pakjes bezorgen
 2. Pepernoten: ook pepernoten verzamelen
 3. Kleuren: tik op de kleur van het vlaggetje om het pakje te gooien
-4. Pietenbakkerij: klokkijken (hele en halve uren) en tellen met doosjes van 10 pepernoten (opdrachten staan hier altijd aan)
+4. Pietenbakkerij: klokkijken, tellen met een doosje van 10, welk getal mist er, en 'bak het woord' (letterkoekjes in de juiste volgorde tikken). Speel je zonder opdrachten, dan verzamel je hier donuts in plaats daarvan.
 
 Elk level heeft een eigen wereld: nachtelijk stadje met sneeuw, zonsondergang met molens en vallende blaadjes, noorderlicht met gekleurde huizen en lichtslingers, en een peperkoekdorp bij zonsopkomst.
 
