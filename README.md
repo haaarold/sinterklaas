@@ -5,6 +5,7 @@ Een speelbaar browserspel in één HTML-bestand. Sinterklaas rijdt met Pietje op
 ## Besturing
 - Spatie of tikken: springen
 - Pijltje omlaag of knop "Gooi pakje": pakje gooien
+- Pauzeknop rechtsboven (of Esc): pauzeren, opnieuw beginnen of stoppen
 - Level 3: tik op de kleur van het vlaggetje, dan wordt meteen een pakje in die kleur gegooid (of toets 1, 2, 3)
 
 ## Levels (15 pakjes per level)

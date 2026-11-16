@@ -33,6 +33,8 @@ button:focus-visible{outline:4px solid #fff;outline-offset:3px}
 .pill{background:rgba(11,20,64,.78);color:#fff;border:3px solid var(--goud);border-radius:999px;
   padding:6px 18px;font-size:clamp(20px,3.4vw,30px);font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
 .pill.pop{animation:pop .35s}
+#pauseBtn{pointer-events:auto;margin-left:auto;width:56px;height:56px;border-radius:50%;font-size:20px;letter-spacing:-2px;background:rgba(11,20,64,.78);color:#fff;border:3px solid var(--goud)}
+#pauseBtn+#snd{margin-left:0}
 #snd{pointer-events:auto;margin-left:auto;width:56px;height:56px;border-radius:50%;font-size:26px;
   background:rgba(11,20,64,.78);color:#fff;border:3px solid var(--goud)}
 #ctrl{position:absolute;left:14px;right:14px;bottom:14px;display:flex;justify-content:space-between;align-items:flex-end;pointer-events:none}
@@ -134,6 +136,7 @@ h1 span{display:block;color:var(--inkt)}
   <div class="pill hidden" id="pkPill">🎁 <span id="cnt">0</span> / <span id="goal">15</span></div>
   <div class="pill hidden" id="ptPill">⭐ <span id="score">0</span></div>
   <div class="pill hidden" id="nutPill"><span id="nutIco">🍪</span> <span id="nuts">0</span></div>
+  <button id="pauseBtn" class="hidden" aria-label="Pauze">❚❚</button>
   <button id="snd" aria-label="Geluid aan of uit">🔊</button>
 </div>
 
@@ -154,6 +157,17 @@ h1 span{display:block;color:var(--inkt)}
     </ul>
     <div class="starts"><button class="go" id="startBtn">START HET SPEL<small>met sommen en woordjes</small></button>
     <button class="go zonder" id="startBtn2">Alleen pakjes bezorgen<small>zonder sommen en woordjes</small></button></div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="pauseScr">
+  <div class="card">
+    <h1>Pauze</h1>
+    <div class="starts">
+      <button class="go" id="resumeBtn">▶ VERDER</button>
+      <button class="go zonder" id="restartBtn">↻ Opnieuw</button>
+      <button class="go zonder" id="stopBtn" style="background:#8a4fd0;box-shadow:0 8px 0 #5d2f99">⏹ Stoppen</button>
+    </div>
   </div>
 </div>
 
@@ -320,8 +334,9 @@ $('snd').addEventListener('click',function(){
   if(master)master.gain.value=muted?0:1;
 });
 document.addEventListener('visibilitychange',function(){
+  if(document.hidden&&state==='play')pauseGame();
   if(!AC)return;
-  try{if(document.hidden)AC.suspend();else AC.resume();}catch(e){}
+  try{if(document.hidden)AC.suspend();else if(state!=='pause')AC.resume();}catch(e){}
 });
 
 /* ---------- spelwereld ---------- */
@@ -1056,7 +1071,7 @@ var PKEY='pakjesavond-sterren';
 function loadProg(){var a=[];try{var r=JSON.parse(localStorage.getItem(PKEY)||'[]');if(Array.isArray(r))a=r;}catch(e){}
   for(var i=0;i<LEVELS.length;i++)a[i]=+a[i]||0;return a;}
 function saveProg(){try{localStorage.setItem(PKEY,JSON.stringify(progress));}catch(e){}}
-function hideGame(){show('ctrl',false);show('cols',false);show('pkPill',false);show('ptPill',false);show('nutPill',false);}
+function hideGame(){show('pauseBtn',false);show('ctrl',false);show('cols',false);show('pkPill',false);show('ptPill',false);show('nutPill',false);}
 function buildLevels(){
   var box=$('lvList');box.innerHTML='';
   LEVELS.forEach(function(L,i){
@@ -1073,11 +1088,21 @@ function openLevels(){
   show('startScr',false);show('winScr',false);show('quizScr',false);
   buildLevels();show('levelScr',true);
 }
+function pauseGame(){
+  if(state!=='play')return;
+  state='pause';show('pauseScr',true);
+  try{if(AC)AC.suspend();}catch(e){}
+}
+function resumeGame(){
+  if(state!=='pause')return;
+  show('pauseScr',false);state='play';resumeT=.3;
+  try{if(AC&&!document.hidden)AC.resume();}catch(e){}
+}
 function startLevel(i){
   initAudio();lvlIdx=i;lvl=LEVELS[i];GOAL=lvl.goal;TH=THEMES[lvl.mis];farCol=TH.far;introT=2.8;reset();state='play';resumeT=.2;
   $('goal').textContent=GOAL;
   show('startScr',false);show('levelScr',false);show('winScr',false);show('quizScr',false);
-  show('ctrl',true);show('pkPill',true);show('ptPill',true);
+  show('ctrl',true);show('pkPill',true);show('ptPill',true);show('pauseBtn',true);show('pauseScr',false);
   show('nutPill',collecting());$('nutIco').textContent=lvl.mis==='bak'?'🍩':'🍪';show('cols',lvl.mis==='kleur');show('throwBtn',lvl.mis!=='kleur');
 }
 function calcStars(){
@@ -1098,12 +1123,17 @@ $('backBtn').addEventListener('click',function(){state='start';show('levelScr',f
 $('againBtn').addEventListener('click',function(){startLevel(lvlIdx);});
 $('nextBtn').addEventListener('click',function(){startLevel(Math.min(lvlIdx+1,LEVELS.length-1));});
 $('menuBtn').addEventListener('click',openLevels);
+$('pauseBtn').addEventListener('click',pauseGame);
+$('resumeBtn').addEventListener('click',resumeGame);
+$('restartBtn').addEventListener('click',function(){show('pauseScr',false);startLevel(lvlIdx);});
+$('stopBtn').addEventListener('click',function(){show('pauseScr',false);openLevels();});
 
 /* ---------- besturing ---------- */
 window.addEventListener('keydown',function(e){
   var k=e.code||e.key;
   if(k==='Space'||k==='ArrowUp'||k==='ArrowDown'||k===' ')e.preventDefault();
   if(e.repeat)return;
+  if(k==='Escape'||k==='KeyP'){if(state==='play')pauseGame();else if(state==='pause')resumeGame();return;}
   if(state==='play'){
     if(k==='Space'||k===' '||k==='ArrowUp'||k==='KeyW')jump();
     else if(k==='ArrowDown'||k==='KeyS')throwParcel();
