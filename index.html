@@ -60,6 +60,10 @@ h1 span{display:block;color:var(--inkt)}
   box-shadow:0 3px 0 #000}
 .go{background:var(--groen);color:#fff;font-size:clamp(24px,4.4vw,36px);font-weight:700;border-radius:28px;
   padding:16px 34px;box-shadow:0 8px 0 #1c7a33;letter-spacing:.5px}
+.go small{display:block;font-size:.45em;font-weight:500;letter-spacing:0;opacity:.95}
+.starts{display:flex;flex-direction:column;gap:16px;align-items:center}
+.go.zonder{background:#2f7fd6;box-shadow:0 8px 0 #1d5aa0;font-size:clamp(19px,3.2vw,26px);padding:12px 26px}
+.go.zonder small{font-size:.6em}
 .go:active{transform:translateY(5px);box-shadow:0 3px 0 #1c7a33}
 
 /* Opdracht */
@@ -118,15 +122,14 @@ h1 span{display:block;color:var(--inkt)}
       <li><span class="ico"><span class="key">↓</span>🎁</span>Gooi een pakje in de schoorsteen</li>
       <li><span class="ico">⭐</span>Gouden schoorsteen? Los het raadsel op voor 10 extra punten</li>
     </ul>
-    <button class="go" id="startBtn">START HET SPEL</button>
+    <div class="starts"><button class="go" id="startBtn">START HET SPEL<small>met sommen en woordjes</small></button>
+    <button class="go zonder" id="startBtn2">Alleen pakjes bezorgen<small>zonder sommen en woordjes</small></button></div>
   </div>
 </div>
 
 <div class="overlay hidden" id="quizScr">
   <div class="card">
-    <span class="tag" id="qTag">Rekenen</span>
     <div id="qVisual"></div>
-    <div id="qText"></div>
     <div id="qBig"></div>
     <div id="qOpts"></div>
     <div id="qMsg" aria-live="polite"></div>
@@ -147,7 +150,7 @@ h1 span{display:block;color:var(--inkt)}
 var $=function(id){return document.getElementById(id);};
 var cv=$('c'), ctx=cv.getContext('2d');
 var FONT='"Fredoka","Baloo 2","Chalkboard SE","Comic Sans MS",ui-rounded,"Arial Rounded MT Bold",sans-serif';
-var GOAL=10, G=1900, JUMP=-760, SPEED=230, CH_H=54;
+var GOAL=10, G=1500, JUMP=-700, SPEED=175, CH_H=54;
 
 /* ---------- hulpjes ---------- */
 function rand(a,b){return a+Math.random()*(b-a);}
@@ -247,6 +250,7 @@ document.addEventListener('visibilitychange',function(){
 /* ---------- spelwereld ---------- */
 var state='start',T=0,cam=0,blds=[],parcels=[],parts=[],texts=[],tramp=null;
 var delivered=0,score=0,chimN=0,throwCd=0,quizDelay=0,winDelay=0,resumeT=9,fwT=0,quizChim=null,quizN=0;
+var quizOn=true,gt=0,hist=[],piet={x:-90,y:470,air:false};
 var h={x:0,y:470,vy:0,ground:true,coy:0,buf:0,blocked:false,blockT:0,throwT:0};
 var BCOL=['#5a2f36','#6a3a34','#4a3350','#3d3f5e','#5c4438','#44384f','#553040'];
 var PCOL=['#e23b4a','#2fae4e','#2f7fd6','#e8862a','#b04fd0'];
@@ -262,11 +266,11 @@ function mkBuilding(x,w,roofY,withCh){
   var b={x:x,w:w,roofY:roofY,col:pick(BCOL),wins:[],ch:null};
   var cols=Math.max(2,Math.floor((w-30)/62));b.cols=cols;
   for(var i=0;i<cols*4;i++)b.wins.push(Math.random()<.55?pick(['#ffd76a','#ffc94d','#ffe59a']):null);
-  if(withCh){chimN++;b.ch={cx:x+w*rand(.42,.7),special:chimN%2===0,done:false,incoming:false,sm:0,b:b};}
+  if(withCh){chimN++;b.ch={cx:x+w*rand(.42,.7),special:quizOn&&chimN%2===0,done:false,incoming:false,sm:0,b:b};}
   return b;
 }
 function addBuilding(){
-  var p=blds[blds.length-1],adj=Math.random()<.3,gap=adj?0:rand(75,115);
+  var p=blds[blds.length-1],adj=Math.random()<.3,gap=adj?0:rand(70,105);
   var dy=(Math.random()<.5?-1:1)*(adj?rand(32,58):rand(8,52));
   var ry=p.roofY+dy;if(ry<400||ry>540)ry=p.roofY-dy;ry=clamp(ry,400,540);
   blds.push(mkBuilding(p.x+p.w+gap,rand(260,400),ry,true));
@@ -284,6 +288,8 @@ function reset(){
   blds.push(mkBuilding(-300,1000,470,false));
   h.x=0;h.y=470;h.vy=0;h.ground=true;h.coy=0;h.buf=0;h.blocked=false;h.blockT=0;h.throwT=0;
   cam=h.x-VW*.28;genBuildings();newDecks();hud();
+  gt=0;hist=[];for(var i=0;i<=30;i++){var t0=-.5+i/60;hist.push({t:t0,x:h.x+t0*SPEED,y:h.y,a:false});}
+  piet.x=hist[0].x;piet.y=h.y;piet.air=false;
 }
 
 /* ---------- paard ---------- */
@@ -561,6 +567,35 @@ function drawHorse(){
     var yy=h.y-200+Math.sin(T*8)*6;ctx.strokeText('Spring!',h.x,yy);ctx.fillText('Spring!',h.x,yy);
   }
 }
+function drawPiet(){
+  var still=state!=='play',ph=T*14,air=piet.air,bob=(air||still)?0:-Math.abs(Math.sin(ph))*3;
+  ctx.save();ctx.translate(piet.x,piet.y);
+  function leg(p){var a=air?(p?.6:-.7):(still?0:Math.sin(ph+p)*.75);
+    ctx.save();ctx.translate(0,-30+bob);ctx.rotate(a);
+    ctx.fillStyle='#f2c230';rr(-6,-4,12,14,5);ctx.fill();
+    ctx.fillStyle='#2a2350';ctx.fillRect(-3,9,6,15);
+    ctx.fillStyle='#231f2e';rr(-3,23,12,7,3);ctx.fill();ctx.restore();}
+  leg(Math.PI);
+  ctx.fillStyle='#a57a43';ctx.beginPath();ctx.ellipse(-15,-50+bob,12,15,-.2,0,6.3);ctx.fill();
+  ctx.fillStyle='#e23b4a';ctx.fillRect(-20,-70+bob,9,9);
+  leg(0);
+  ctx.translate(0,bob);
+  ctx.fillStyle='#2e9a5a';rr(-9,-58,18,28,6);ctx.fill();
+  ctx.fillStyle='#f2c230';ctx.fillRect(-1.5,-56,3,24);
+  var aa=air?-2.2:(still?-2.6+Math.sin(T*6)*.35:Math.sin(ph+Math.PI)*.8);
+  ctx.save();ctx.translate(0,-54);ctx.rotate(aa);ctx.strokeStyle='#2e9a5a';ctx.lineWidth=6;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,16);ctx.stroke();ctx.fillStyle='#e9b98f';circ(0,18,3.5);ctx.fill();ctx.restore();
+  ctx.fillStyle='#fff';ctx.beginPath();ctx.ellipse(0,-58,12,4.5,0,0,6.3);ctx.fill();
+  ctx.fillStyle='#3a2a22';circ(-2,-70,9.5);ctx.fill();
+  ctx.fillStyle='#e9b98f';circ(1,-69,9.5);ctx.fill();
+  ctx.strokeStyle='rgba(60,45,40,.75)';ctx.lineWidth=2;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(1,-65);ctx.lineTo(6,-63);ctx.moveTo(-4,-72);ctx.lineTo(0,-74);ctx.stroke();
+  ctx.fillStyle='#2a2350';circ(5,-71,1.5);ctx.fill();
+  ctx.strokeStyle='#2a2350';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(4,-67.5,3.5,.2,1.9);ctx.stroke();
+  ctx.fillStyle='#7a3fc0';ctx.beginPath();ctx.ellipse(-1,-79,13,6,-.15,0,6.3);ctx.fill();
+  ctx.strokeStyle='#e23b4a';ctx.lineWidth=3.5;ctx.beginPath();ctx.moveTo(-8,-82);ctx.quadraticCurveTo(-17,-96,-6,-101);ctx.stroke();
+  ctx.restore();
+}
 function drawParts(){
   for(var i=0;i<parts.length;i++){var p=parts[i],k=clamp(p.life/p.max,0,1);
     if(p.t==='smoke'){ctx.globalAlpha=k*.42;ctx.fillStyle='#c8d2eb';circ(p.x,p.y,p.size+(1-k)*16);ctx.fill();}
@@ -599,7 +634,7 @@ function render(){
   }
   if(tramp)drawTramp();
   for(i=0;i<parcels.length;i++){var p=parcels[i];drawParcel(p.x,p.y,p.rot,p.col,p.free?1:1-Math.max(0,p.t-.85)*3);}
-  drawHorse();
+  drawPiet();drawHorse();
   drawParts();drawTexts();
   ctx.restore();
   drawSnow();
@@ -622,33 +657,28 @@ function noten(n,weg){var d=document.createElement('div');d.className='noten';
 function teken(t){var s=document.createElement('span');s.className='teken';s.textContent=t;return s;}
 function openQuiz(){
   state='quiz';qLock=false;
-  var vis=$('qVisual'),txt=$('qText'),big=$('qBig'),opts=$('qOpts'),msg=$('qMsg');
+  var vis=$('qVisual'),big=$('qBig'),opts=$('qOpts'),msg=$('qMsg');
   vis.innerHTML='';opts.innerHTML='';big.innerHTML='';msg.textContent='';msg.className='';
   var answers=[],good,onGood=null;
   if(quizN%2===0){
-    $('qTag').textContent='Rekenen';
     var max=mathN<3?10:15,plus=Math.random()<.55,a,b,res;mathN++;
     if(plus){a=irand(1,max-1);b=irand(1,max-a);res=a+b;vis.appendChild(noten(a,0));vis.appendChild(teken('+'));vis.appendChild(noten(b,0));}
     else{a=irand(2,max);b=irand(1,a-1);res=a-b;vis.appendChild(noten(a,b));}
-    txt.textContent=plus?'Hoeveel pepernoten zijn het samen?':'Hoeveel pepernoten blijven er over?';
     big.textContent=a+(plus?' + ':' − ')+b+' = ?';
     good=String(res);
     var cand=shuffle([res-2,res-1,res+1,res+2].filter(function(v){return v>=0;}));
     answers=shuffle([good,String(cand[0]),String(cand[1])]);
     onGood=function(){big.textContent=a+(plus?' + ':' − ')+b+' = '+res;};
   }else{
-    $('qTag').textContent='Taal';
     if(!deck.length)deck=shuffle(WORDS.slice());
     var w=deck.pop(),pl=document.createElement('div');pl.className='plaatje';pl.textContent=w[1];vis.appendChild(pl);
     if(taalN%2===0){
-      txt.textContent='Welke letter mist er?';
       big.innerHTML='<span class="gat">&nbsp;</span>'+w[0].slice(1);
       good=w[0][0];
       var letters=shuffle('bdfghjklmnprstvwz'.split('').filter(function(l){return l!==good;}));
       answers=shuffle([good,letters[0],letters[1]]);
       onGood=function(){big.innerHTML='<span class="gat">'+good+'</span>'+w[0].slice(1);};
     }else{
-      txt.textContent='Welk woord hoort bij het plaatje?';
       good=w[0];
       var others=shuffle(WORDS.filter(function(o){return o[0]!==good;}));
       answers=shuffle([good,others[0][0],others[1][0]]);
@@ -695,8 +725,9 @@ function win(){
   state='win';fwT=0;sWin();
   $('eindScore').textContent=score;show('ctrl',false);show('winScr',true);
 }
-$('startBtn').addEventListener('click',start);
-$('againBtn').addEventListener('click',start);
+$('startBtn').addEventListener('click',function(){quizOn=true;start();});
+$('startBtn2').addEventListener('click',function(){quizOn=false;start();});
+$('againBtn').addEventListener('click',function(){start();});
 
 /* ---------- besturing ---------- */
 window.addEventListener('keydown',function(e){
@@ -724,6 +755,9 @@ function update(dt){
   if(state==='play'){
     resumeT+=dt;var d=dt*Math.min(1,resumeT/.7);
     stepHorse(d/2);stepHorse(d/2);
+    gt+=d;hist.push({t:gt,x:h.x,y:h.y,a:!h.ground});
+    while(hist.length>2&&hist[1].t<=gt-.5)hist.shift();
+    piet.x=hist[0].x;piet.y=hist[0].y;piet.air=hist[0].a;
     cam=h.x-VW*.28;genBuildings();updParcels(d);
     throwCd-=dt;
     if(quizDelay>0){quizDelay-=dt;if(quizDelay<=0)openQuiz();}
