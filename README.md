@@ -11,6 +11,7 @@ Een speelbaar browserspel in één HTML-bestand. Sinterklaas rijdt met Pietje op
 1. Het stadje: pakjes bezorgen
 2. Pepernoten: ook pepernoten verzamelen
 3. Kleuren: tik op de kleur van het vlaggetje om het pakje te gooien
+4. Pietenbakkerij: klokkijken (hele en halve uren) en tellen met doosjes van 10 pepernoten (opdrachten staan hier altijd aan)
 
 Vooruitgang (sterren) wordt in de browser onthouden. Bij gouden schoorstenen volgt een opdracht: rekenen, een letter of woord kiezen, of luisteren en het juiste woord kiezen (met de Nederlandse stem van het apparaat). Er is ook een speelvorm zonder opdrachten.
 
