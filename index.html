@@ -166,7 +166,8 @@ h1 span{display:block;color:var(--inkt)}
     <div class="starts">
       <button class="go" id="resumeBtn">▶ VERDER</button>
       <button class="go zonder" id="restartBtn">↻ Opnieuw</button>
-      <button class="go zonder" id="stopBtn" style="background:#8a4fd0;box-shadow:0 8px 0 #5d2f99">🏠 Naar begin</button>
+      <button class="go zonder" id="homeBtn" style="background:#8a4fd0;box-shadow:0 8px 0 #5d2f99">🏠 Naar begin</button>
+      <button class="go zonder" id="stopBtn" style="background:#c0392b;box-shadow:0 8px 0 #7d241b">⏹ Stoppen en scores wissen</button>
     </div>
   </div>
 </div>
@@ -1150,7 +1151,16 @@ $('menuBtn').addEventListener('click',openLevels);
 $('pauseBtn').addEventListener('click',pauseGame);
 $('resumeBtn').addEventListener('click',resumeGame);
 $('restartBtn').addEventListener('click',function(){show('pauseScr',false);startLevel(lvlIdx);});
-$('stopBtn').addEventListener('click',function(){show('pauseScr',false);stopVoice();try{speechSynthesis.cancel();}catch(e){}state='start';hideGame();show('winScr',false);show('quizScr',false);show('levelScr',false);show('startScr',true);try{if(AC)AC.resume();}catch(e){}});
+function toStart(){show('pauseScr',false);stopVoice();try{speechSynthesis.cancel();}catch(e){}state='start';hideGame();show('winScr',false);show('quizScr',false);show('levelScr',false);show('startScr',true);try{if(AC)AC.resume();}catch(e){}}
+$('homeBtn').addEventListener('click',toStart);
+var stopT=null;
+$('stopBtn').addEventListener('click',function(){
+  var b=$('stopBtn');
+  if(!stopT){b.textContent='Zeker weten? Tik nog eens';stopT=setTimeout(function(){stopT=null;b.textContent='⏹ Stoppen en scores wissen';},3500);return;}
+  clearTimeout(stopT);stopT=null;b.textContent='⏹ Stoppen en scores wissen';
+  progress=[];try{localStorage.removeItem(PKEY);}catch(e){}
+  score=0;delivered=0;nutCount=0;misses=0;hud();toStart();
+});
 
 /* ---------- besturing ---------- */
 window.addEventListener('keydown',function(e){
