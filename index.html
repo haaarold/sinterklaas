@@ -184,8 +184,9 @@ h1 span{display:block;color:var(--inkt)}
       <dt>Laatste update</dt><dd>16 november 2026</dd>
       <dt>Voor wie</dt><dd>Kinderen van ongeveer 6 en 7 jaar (groep 3). Met oefeningen voor rekenen, taal en luisteren.</dd>
       <dt>Gemaakt door</dt><dd>Harold, met hulp van Claude (Anthropic)</dd>
-      <dt>Stemmen</dt><dd>Zelf ingesproken</dd>
+      <dt>Stemmen</dt><dd>Marjolijn</dd>
       <dt>Privacy</dt><dd>Je voortgang blijft alleen op dit apparaat. Er worden anoniem bezoeken geteld (GoatCounter), zonder cookies.</dd>
+    <dt>Contact</dt><dd><a id="mailLnk" href="#" style="color:#8a4fd0;font-weight:700">Suggesties? Stuur een mail</a></dd>
     </dl>
     <div class="starts"><button class="go" id="infoBack">Terug</button></div>
   </div>
@@ -1210,6 +1211,7 @@ function win(){
 }
 $('startBtn').addEventListener('click',function(){quizOn=true;openLevels();});
 $('startBtn2').addEventListener('click',function(){quizOn=false;openLevels();});
+(function(){var m=['sintenpietgame','gmail.com'].join('@'),a=$('mailLnk');a.href='mailto:'+m+'?subject='+encodeURIComponent('Suggestie voor Pakjesavond');a.textContent=m;})();
 $('infoBtn').addEventListener('click',function(){show('startScr',false);show('infoScr',true);});
 $('infoBack').addEventListener('click',function(){show('infoScr',false);show('startScr',true);});
 $('backBtn').addEventListener('click',function(){state='start';show('levelScr',false);show('startScr',true);});
