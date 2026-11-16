@@ -126,6 +126,9 @@ h1 span{display:block;color:var(--inkt)}
 @keyframes schud{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
 @media (max-width:700px){.big{min-width:104px;padding:12px 12px;font-size:19px}.cb{width:68px;height:68px;font-size:30px}#cols{gap:8px}}
 @media (max-height:520px){.uitleg{gap:6px;margin-bottom:10px}.lead{margin:2px 0 8px}.big{min-height:60px;padding:10px 18px}}
+.info{margin:0 0 14px;text-align:left;font-size:clamp(15px,2.4vw,20px);display:grid;grid-template-columns:auto 1fr;gap:8px 16px;align-items:baseline}
+.info dt{font-weight:700;color:#8a4fd0}
+.info dd{margin:0}
 .regen{position:absolute;inset:0;overflow:hidden;pointer-events:none}
 .regen span{position:absolute;top:-12%;animation:valgoed linear infinite;will-change:transform}
 @keyframes valgoed{0%{transform:translateY(0) rotate(0)}100%{transform:translateY(125vh) rotate(var(--r,360deg))}}
@@ -167,7 +170,24 @@ h1 span{display:block;color:var(--inkt)}
       <li><span class="ico">⭐</span>Gouden schoorsteen? Los het raadsel op voor 10 extra punten</li>
     </ul>
     <div class="starts"><button class="go" id="startBtn">START HET SPEL<small>met sommen en woordjes</small></button>
-    <button class="go zonder" id="startBtn2">Alleen pakjes bezorgen<small>zonder sommen en woordjes</small></button></div>
+    <button class="go zonder" id="startBtn2">Alleen pakjes bezorgen<small>zonder sommen en woordjes</small></button>
+    <button class="go zonder" id="infoBtn" style="background:#8a4fd0;box-shadow:0 8px 0 #5d2f99">ℹ️ Info</button></div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="infoScr">
+  <div class="card">
+    <h1>Over dit <span>spel</span></h1>
+    <dl class="info">
+      <dt>Spel</dt><dd>Sinterklaas &amp; Ozosnel: Pakjesavond!</dd>
+      <dt>Versie</dt><dd>2.0</dd>
+      <dt>Laatste update</dt><dd>16 november 2026</dd>
+      <dt>Voor wie</dt><dd>Kinderen van ongeveer 6 en 7 jaar (groep 3). Met oefeningen voor rekenen, taal en luisteren.</dd>
+      <dt>Gemaakt door</dt><dd>Harold, met hulp van Claude (Anthropic)</dd>
+      <dt>Stemmen</dt><dd>Zelf ingesproken</dd>
+      <dt>Privacy</dt><dd>Je voortgang blijft alleen op dit apparaat. Er worden anoniem bezoeken geteld (GoatCounter), zonder cookies.</dd>
+    </dl>
+    <div class="starts"><button class="go" id="infoBack">Terug</button></div>
   </div>
 </div>
 
@@ -1190,6 +1210,8 @@ function win(){
 }
 $('startBtn').addEventListener('click',function(){quizOn=true;openLevels();});
 $('startBtn2').addEventListener('click',function(){quizOn=false;openLevels();});
+$('infoBtn').addEventListener('click',function(){show('startScr',false);show('infoScr',true);});
+$('infoBack').addEventListener('click',function(){show('infoScr',false);show('startScr',true);});
 $('backBtn').addEventListener('click',function(){state='start';show('levelScr',false);show('startScr',true);});
 $('againBtn').addEventListener('click',function(){startLevel(lvlIdx>=LEVELS.length-1?0:lvlIdx);});
 $('nextBtn').addEventListener('click',function(){startLevel(Math.min(lvlIdx+1,LEVELS.length-1));});
