@@ -20,3 +20,7 @@ Vooruitgang (sterren) wordt in de browser onthouden. Bij gouden schoorstenen vol
 
 ## Stemmen
 Woorden, kleuren en de vijf vragen zijn ingesproken en zitten als mp3 (base64) in `index.html`. Zonder opname valt het spel terug op de Nederlandse stem van het apparaat.
+
+
+## Statistieken (optioneel)
+Het spel kan bezoekers tellen met [GoatCounter](https://www.goatcounter.com) (geen cookies, privacyvriendelijk). Vul in `index.html` bij `GC_CODE` je GoatCounter-code in (bijv. `haaarold` voor haaarold.goatcounter.com).
