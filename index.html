@@ -126,6 +126,17 @@ h1 span{display:block;color:var(--inkt)}
 @keyframes schud{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
 @media (max-width:700px){.big{min-width:104px;padding:12px 12px;font-size:19px}.cb{width:68px;height:68px;font-size:30px}#cols{gap:8px}}
 @media (max-height:520px){.uitleg{gap:6px;margin-bottom:10px}.lead{margin:2px 0 8px}.big{min-height:60px;padding:10px 18px}}
+.regen{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.regen span{position:absolute;top:-12%;animation:valgoed linear infinite;will-change:transform}
+@keyframes valgoed{0%{transform:translateY(0) rotate(0)}100%{transform:translateY(125vh) rotate(var(--r,360deg))}}
+#finScr{background:radial-gradient(circle at 50% 35%,rgba(120,40,140,.75),rgba(8,12,44,.9))}
+#finScr .card{position:relative;animation:finpop .7s cubic-bezier(.2,1.5,.4,1)}
+@keyframes finpop{0%{transform:scale(.4);opacity:0}100%{transform:scale(1);opacity:1}}
+.totaal{font-size:clamp(54px,13vw,96px);font-weight:800;color:#c0392b;line-height:1;margin:6px 0 2px;text-shadow:0 4px 0 rgba(0,0,0,.12)}
+.totaal.klaar{animation:totpop .5s}
+@keyframes totpop{50%{transform:scale(1.25)}}
+.finrij{font-size:clamp(30px,7vw,48px);margin:2px 0}
+@media (prefers-reduced-motion:reduce){.regen span,#finScr .card,.totaal.klaar{animation-duration:.01s !important;animation-iteration-count:1 !important}}
 @media (prefers-reduced-motion:reduce){.card,.opt,.pill,#throwBtn.nu{animation:none !important}}
 </style>
 </head>
@@ -189,6 +200,20 @@ h1 span{display:block;color:var(--inkt)}
   </div>
 </div>
 
+<div class="overlay hidden" id="finScr">
+  <div class="regen" id="regen"></div>
+  <div class="card">
+    <div class="finrij">🎁🍬🎉🍬🎁</div>
+    <h1>Pakjesavond is <span>gelukt!</span></h1>
+    <div class="totaal" id="finTot">0</div>
+    <p class="eind">punten in alle levels samen<br><span id="finStars"></span></p>
+    <div class="starts">
+      <button class="go" id="finAgain">▶ NOG EEN KEER</button>
+      <button class="go zonder" id="finMenu" style="background:#8a4fd0;box-shadow:0 8px 0 #5d2f99">Alle levels</button>
+    </div>
+  </div>
+</div>
+
 <div class="overlay hidden" id="winScr">
   <div class="card">
     <h1>Goed gedaan, <span>hulppiet!</span></h1>
@@ -196,6 +221,7 @@ h1 span{display:block;color:var(--inkt)}
     <p class="eind">Alle pakjes zijn bezorgd.<br>Jouw punten: <b id="eindScore">0</b> ⭐</p>
     <div class="starts">
       <button class="go" id="nextBtn">VOLGEND LEVEL ▶</button>
+      <button class="go hidden" id="feestBtn">🎉 FEEST!</button>
       <button class="go zonder" id="againBtn">Nog een keer</button>
       <button class="go zonder" id="menuBtn" style="background:#8a4fd0;box-shadow:0 8px 0 #5d2f99">Alle levels</button>
     </div>
@@ -956,7 +982,7 @@ function openQuiz(){
     if(d2===d1||d2===good)d2=h2[1]+sfx;
     answers=shuffle([good,d1,d2]);
   }else if(kind===4){
-    qKey='v_samen';var bx=1,lo=irand(1,9),tot=bx*10+lo;tienN++;
+    qKey='v_samen';var bx=1,lo=irand(1,5),tot=bx*10+lo;tienN++;
     for(var bi=0;bi<bx;bi++){var bxx=document.createElement('div');bxx.className='doos';for(var ni=0;ni<10;ni++){var nn2=document.createElement('span');nn2.className='noot';bxx.appendChild(nn2);}vis.appendChild(bxx);}
     if(lo){vis.appendChild(teken('+'));vis.appendChild(noten(lo,0));}
     good=String(tot);big.textContent='10 + '+lo+' = ?';
@@ -999,15 +1025,15 @@ function openQuiz(){
     answers=shuffle([good,String(cn[0]),String(cn[1])]);
     onGood=function(){big.innerHTML=toon(true);};
   }else if(kind===0){
-    var plus=Math.random()<.55,hoog=(mathN>=3||lvlIdx>=1)&&Math.random()<.3,a,b,res,max=10;mathN++;
+    var plus=Math.random()<.55,hoog=(mathN>=3||lvlIdx>=1)&&Math.random()<.25,a,b,res,max=10;mathN++;
     if(!hoog){
       if(plus){a=irand(1,max-1);b=irand(1,max-a);res=a+b;vis.appendChild(noten(a,0));vis.appendChild(teken('+'));vis.appendChild(noten(b,0));}
       else{a=irand(2,max);b=irand(1,a-1);res=a-b;vis.appendChild(noten(a,b));}
     }else if(plus){
-      if(Math.random()<.7){a=10;b=irand(1,5);}else{a=irand(11,12);b=irand(1,13-a);}
+      a=10;b=irand(1,5);
       res=a+b;getalBeeld(vis,a,0);vis.appendChild(teken('+'));vis.appendChild(noten(b,0));
     }else{
-      a=irand(11,14);b=irand(1,a-10);res=a-b;getalBeeld(vis,a,b);
+      a=irand(11,13);b=irand(1,a-10);res=a-b;getalBeeld(vis,a,b);
     }
     qKey=plus?'v_samen':'v_over';
     big.textContent=a+(plus?' + ':' − ')+b+' = ?';
@@ -1093,7 +1119,27 @@ function show(id,on){$(id).classList.toggle('hidden',!on);}
 var PKEY='pakjesavond-sterren';
 function loadProg(){var a=[];try{var r=JSON.parse(localStorage.getItem(PKEY)||'[]');if(Array.isArray(r))a=r;}catch(e){}
   for(var i=0;i<LEVELS.length;i++)a[i]=+a[i]||0;return a;}
-function saveProg(){try{localStorage.setItem(PKEY,JSON.stringify(progress));}catch(e){}}
+function saveProg(){try{localStorage.setItem(PKEY,JSON.stringify(progress));localStorage.setItem(SKEY,JSON.stringify(best));}catch(e){}}
+var SKEY='pakjesavond-punten',best=[];
+function loadBest(){var a=[];try{var r=JSON.parse(localStorage.getItem(SKEY)||'[]');if(Array.isArray(r))a=r;}catch(e){}
+  for(var i=0;i<LEVELS.length;i++)a[i]=+a[i]||0;return a;}
+var finT=null;
+function finale(){
+  state='win';hideGame();show('winScr',false);show('finScr',true);sWin();
+  setTimeout(function(){if(!$('finScr').classList.contains('hidden'))playVoice('v_hulp');},1500);
+  var box=$('regen');box.innerHTML='';
+  var goed=['🎁','🎁','🎁','🍬','🍭','🍫','🍪','🟤','🟤','⭐'],n=window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches?10:46;
+  for(var i=0;i<n;i++){var e=document.createElement('span');e.textContent=pick(goed);
+    e.style.left=(Math.random()*100)+'%';e.style.fontSize=(18+Math.random()*30)+'px';
+    e.style.animationDuration=(3.2+Math.random()*4)+'s';e.style.animationDelay=(-Math.random()*7)+'s';
+    e.style.setProperty('--r',(Math.random()<.5?-1:1)*(180+Math.random()*540)+'deg');box.appendChild(e);}
+  var tot=0,stn=0;for(var j=0;j<LEVELS.length;j++){tot+=best[j]||0;stn+=progress[j]||0;}
+  $('finStars').textContent='⭐ '+stn+' van de '+(LEVELS.length*3)+' sterren';
+  var el=$('finTot'),t0=Date.now();el.classList.remove('klaar');clearInterval(finT);
+  finT=setInterval(function(){var k=Math.min(1,(Date.now()-t0)/1800);el.textContent=Math.round(tot*(1-Math.pow(1-k,3)));
+    if(k>=1){clearInterval(finT);el.classList.add('klaar');sGood();}},40);
+}
+function endFinale(){clearInterval(finT);$('regen').innerHTML='';show('finScr',false);stopVoice();}
 function hideGame(){show('pauseBtn',false);show('ctrl',false);show('cols',false);show('pkPill',false);show('ptPill',false);show('nutPill',false);}
 function buildLevels(){
   var box=$('lvList');box.innerHTML='';
@@ -1136,10 +1182,10 @@ function calcStars(){
 }
 function win(){
   state='win';fwT=0;sWin();
-  var st=calcStars();if(st>(progress[lvlIdx]||0)){progress[lvlIdx]=st;}saveProg();
+  var st=calcStars();if(st>(progress[lvlIdx]||0)){progress[lvlIdx]=st;}if(score>(best[lvlIdx]||0))best[lvlIdx]=score;saveProg();
   $('eindScore').textContent=score;
   $('stars').textContent='⭐'.repeat(st)+'☆'.repeat(3-st);
-  $('nextBtn').classList.toggle('hidden',lvlIdx>=LEVELS.length-1);
+  $('nextBtn').classList.toggle('hidden',lvlIdx>=LEVELS.length-1);$('feestBtn').classList.toggle('hidden',lvlIdx<LEVELS.length-1);
   hideGame();show('winScr',true);
 }
 $('startBtn').addEventListener('click',function(){quizOn=true;openLevels();});
@@ -1148,6 +1194,9 @@ $('backBtn').addEventListener('click',function(){state='start';show('levelScr',f
 $('againBtn').addEventListener('click',function(){startLevel(lvlIdx);});
 $('nextBtn').addEventListener('click',function(){startLevel(Math.min(lvlIdx+1,LEVELS.length-1));});
 $('menuBtn').addEventListener('click',openLevels);
+$('feestBtn').addEventListener('click',finale);
+$('finAgain').addEventListener('click',function(){endFinale();startLevel(0);});
+$('finMenu').addEventListener('click',function(){endFinale();openLevels();});
 $('pauseBtn').addEventListener('click',pauseGame);
 $('resumeBtn').addEventListener('click',resumeGame);
 $('restartBtn').addEventListener('click',function(){show('pauseScr',false);startLevel(lvlIdx);});
@@ -1158,7 +1207,7 @@ $('stopBtn').addEventListener('click',function(){
   var b=$('stopBtn');
   if(!stopT){b.textContent='Zeker weten? Tik nog eens';stopT=setTimeout(function(){stopT=null;b.textContent='⏹ Stoppen en scores wissen';},3500);return;}
   clearTimeout(stopT);stopT=null;b.textContent='⏹ Stoppen en scores wissen';
-  progress=[];try{localStorage.removeItem(PKEY);}catch(e){}
+  progress=[];best=[];try{localStorage.removeItem(PKEY);localStorage.removeItem(SKEY);}catch(e){}
   score=0;delivered=0;nutCount=0;misses=0;hud();toStart();
 });
 
@@ -1210,7 +1259,7 @@ function frame(ts){
   try{update(dt);render();}catch(err){if(window.console)console.error(err);}
   requestAnimationFrame(frame);
 }
-progress=loadProg();reset();
+progress=loadProg();best=loadBest();reset();
 requestAnimationFrame(function(ts){last=ts;requestAnimationFrame(frame);});
 })();
 </script>
