@@ -1191,7 +1191,7 @@ function win(){
 $('startBtn').addEventListener('click',function(){quizOn=true;openLevels();});
 $('startBtn2').addEventListener('click',function(){quizOn=false;openLevels();});
 $('backBtn').addEventListener('click',function(){state='start';show('levelScr',false);show('startScr',true);});
-$('againBtn').addEventListener('click',function(){startLevel(lvlIdx);});
+$('againBtn').addEventListener('click',function(){startLevel(lvlIdx>=LEVELS.length-1?0:lvlIdx);});
 $('nextBtn').addEventListener('click',function(){startLevel(Math.min(lvlIdx+1,LEVELS.length-1));});
 $('menuBtn').addEventListener('click',openLevels);
 $('feestBtn').addEventListener('click',finale);
