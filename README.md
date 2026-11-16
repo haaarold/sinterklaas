@@ -22,5 +22,8 @@ Vooruitgang (sterren) wordt in de browser onthouden. Bij gouden schoorstenen vol
 Woorden, kleuren en de vijf vragen zijn ingesproken en zitten als mp3 (base64) in `index.html`. Zonder opname valt het spel terug op de Nederlandse stem van het apparaat.
 
 
+## Level 4: ontwijken
+In de bakkerij liggen speculaaspoppen, chocoladeletters, klompjes en worteltjes op de daken. Spring eroverheen! Raak je er een, dan glijdt Sint uit en draait een rondje (geen game over, je gaat alleen even langzamer).
+
 ## Statistieken (optioneel)
 Het spel kan bezoekers tellen met [GoatCounter](https://www.goatcounter.com) (geen cookies, privacyvriendelijk). Vul in `index.html` bij `GC_CODE` je GoatCounter-code in (bijv. `haaarold` voor haaarold.goatcounter.com).
