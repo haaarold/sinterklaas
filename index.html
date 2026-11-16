@@ -33,7 +33,7 @@ button:focus-visible{outline:4px solid #fff;outline-offset:3px}
 .pill{background:rgba(11,20,64,.78);color:#fff;border:3px solid var(--goud);border-radius:999px;
   padding:6px 18px;font-size:clamp(20px,3.4vw,30px);font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
 .pill.pop{animation:pop .35s}
-#pauseBtn{pointer-events:auto;margin-left:auto;width:56px;height:56px;border-radius:50%;font-size:20px;letter-spacing:-2px;background:rgba(11,20,64,.78);color:#fff;border:3px solid var(--goud)}
+#pauseBtn{pointer-events:auto;margin-left:auto;width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0;background:rgba(11,20,64,.78);color:#fff;border:3px solid var(--goud)}
 #pauseBtn+#snd{margin-left:0}
 #snd{pointer-events:auto;margin-left:auto;width:56px;height:56px;border-radius:50%;font-size:26px;
   background:rgba(11,20,64,.78);color:#fff;border:3px solid var(--goud)}
@@ -136,7 +136,7 @@ h1 span{display:block;color:var(--inkt)}
   <div class="pill hidden" id="pkPill">🎁 <span id="cnt">0</span> / <span id="goal">15</span></div>
   <div class="pill hidden" id="ptPill">⭐ <span id="score">0</span></div>
   <div class="pill hidden" id="nutPill"><span id="nutIco">🍪</span> <span id="nuts">0</span></div>
-  <button id="pauseBtn" class="hidden" aria-label="Pauze">❚❚</button>
+  <button id="pauseBtn" class="hidden" aria-label="Pauze"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><rect x="4" y="3" width="6" height="18" rx="2" fill="#fff"/><rect x="14" y="3" width="6" height="18" rx="2" fill="#fff"/></svg></button>
   <button id="snd" aria-label="Geluid aan of uit">🔊</button>
 </div>
 
@@ -166,7 +166,7 @@ h1 span{display:block;color:var(--inkt)}
     <div class="starts">
       <button class="go" id="resumeBtn">▶ VERDER</button>
       <button class="go zonder" id="restartBtn">↻ Opnieuw</button>
-      <button class="go zonder" id="stopBtn" style="background:#8a4fd0;box-shadow:0 8px 0 #5d2f99">⏹ Stoppen</button>
+      <button class="go zonder" id="stopBtn" style="background:#8a4fd0;box-shadow:0 8px 0 #5d2f99">🏠 Naar begin</button>
     </div>
   </div>
 </div>
@@ -1124,7 +1124,7 @@ function startLevel(i){
   initAudio();lvlIdx=i;lvl=LEVELS[i];GOAL=lvl.goal;TH=THEMES[lvl.mis];farCol=TH.far;introT=2.8;reset();state='play';resumeT=.2;
   $('goal').textContent=GOAL;
   var uk=['v_uitleg1','v_uitleg2','v_uitleg3'][i];
-  if(uk&&!(progress[i]>0))setTimeout(function(){if(state==='play'&&lvlIdx===i)playVoice(uk);},900);
+  if(uk)setTimeout(function(){if(state==='play'&&lvlIdx===i)playVoice(uk);},900);
   show('startScr',false);show('levelScr',false);show('winScr',false);show('quizScr',false);
   show('ctrl',true);show('pkPill',true);show('ptPill',true);show('pauseBtn',true);show('pauseScr',false);
   show('nutPill',collecting());$('nutIco').textContent=lvl.mis==='bak'?'🍩':'🍪';show('cols',lvl.mis==='kleur');show('throwBtn',lvl.mis!=='kleur');
@@ -1150,7 +1150,7 @@ $('menuBtn').addEventListener('click',openLevels);
 $('pauseBtn').addEventListener('click',pauseGame);
 $('resumeBtn').addEventListener('click',resumeGame);
 $('restartBtn').addEventListener('click',function(){show('pauseScr',false);startLevel(lvlIdx);});
-$('stopBtn').addEventListener('click',function(){show('pauseScr',false);openLevels();});
+$('stopBtn').addEventListener('click',function(){show('pauseScr',false);stopVoice();try{speechSynthesis.cancel();}catch(e){}state='start';hideGame();show('winScr',false);show('quizScr',false);show('levelScr',false);show('startScr',true);try{if(AC)AC.resume();}catch(e){}});
 
 /* ---------- besturing ---------- */
 window.addEventListener('keydown',function(e){
